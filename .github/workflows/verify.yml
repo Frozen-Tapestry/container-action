@@ -1,0 +1,51 @@
+name: verify
+
+on:
+  push:
+    branches:
+      - prime
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create test Dockerfile
+        run: |
+          echo 'FROM alpine:latest
+          ARG MY_ENV_VAR
+          ARG MY_ENV_VAR2
+          ENV MY_ENV_VAR=$MY_ENV_VAR
+          ENV MY_ENV_VAR2=$MY_ENV_VAR2
+          CMD ["sh", "-c", "echo Result: $MY_ENV_VAR $MY_ENV_VAR2"]' > Dockerfile
+          cat Dockerfile
+      - name: Use Build and Push action
+        uses: ./
+        with:
+          login_registry: ghcr.io
+          login_username: ${{ github.actor }}
+          login_password: ${{ secrets.GITHUB_TOKEN }}
+          tags: |
+            ghcr.io/frozen-tapestry/podman-action-verify:latest
+          dockerfile: Dockerfile
+          build_args: |
+            MY_ENV_VAR=Test
+            MY_ENV_VAR2=Test2
+          security:
+            --security-opt seccomp=unconfined --security-opt apparmor=unconfined
+          push: true
+      - name: Run Docker container and verify output
+        id: verify-output
+        run: |
+          OUTPUT=$(docker run --rm ghcr.io/frozen-tapestry/podman-action-verify:latest)
+          echo "Container Output: $OUTPUT"
+          
+          if [ "$OUTPUT" != "Result: Test Test2" ]; then
+            echo "Output does not match expected string"
+            exit 1
+          fi

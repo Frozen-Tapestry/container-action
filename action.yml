@@ -1,0 +1,85 @@
+name: 'Build and Push with Podman'
+description: 'Build and push container images using Podman and docker-run-action. Also supports Podman login.'
+branding:
+  color: 'yellow'
+  icon: 'package'
+
+inputs:
+  login_registry:
+    description: Container registry to push to (e.g. quay.io). If not set, image is only built locally.
+    required: false
+  login_username:
+    description: Registry username.
+    required: false
+  login_password:
+    description: Registry password (GitHub secret recommended).
+    required: false
+  tags:
+    description: |
+      Tag of the image (space-separated or newline-separated).
+      e.g. quay.io/podman/stable:latest
+    required: false
+  labels:
+    description: List of additional metadata for an image (space-separated or newline-separated).
+    required: false
+  build_args:
+    description: Optional build arguments (space-separated or newline-separated).
+    required: false
+  extra_args:
+    description: |
+      Extra args to be passed to podman bud.
+      Separate arguments by newline.
+    required: false
+  dockerfile:
+    description: Path to the Dockerfile. If set, build step is performed.
+    required: false
+  push:
+    description: Whether to push the image after building.
+    default: 'false'
+    required: false
+  shared_path:
+    description: |
+      Path to container shared folder for different cache files on the host filesystem.
+      Useful for self-hosted runners.
+    default: '/tmp/shared'
+    required: false
+  security:
+    description: Security flags that are used for an intermediate container. Space separated.
+    default: '--network=host'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Convert composite args
+      id: convert
+      shell: bash
+      run: |
+        echo tags=$(echo "${{ inputs.tags }}" | xargs echo -n | tr -s ' \n' '+') >> $GITHUB_OUTPUT
+        echo labels=$(echo "${{ inputs.labels }}" | xargs echo -n | tr -s ' \n' '+') >> $GITHUB_OUTPUT
+        echo build_args=$(echo "${{ inputs.build_args }}" | xargs echo -n | tr -s ' \n' '+') >> $GITHUB_OUTPUT
+        echo extra_args=$(echo "${{ inputs.extra_args }}" | xargs echo -n | tr -s ' \n' '+') >> $GITHUB_OUTPUT    
+
+    - name: Run container steps
+      uses: frozen-tapestry/docker-run-action@v5
+      with:
+        image: quay.io/podman/stable:latest
+        mount_ws: true
+        options: |
+          ${{ inputs.security }}
+          -v ${{ inputs.shared_path }}/auth:/etc/containers/auth
+          -v ${{ inputs.shared_path }}/storage:/var/lib/containers/storage
+          -v ${{ github.action_path }}/scripts:/scripts
+          -e REGISTRY_AUTH_FILE=/etc/containers/auth/auth.json
+          -e REGISTRY=${{ inputs.login_registry }}
+          -e USERNAME=${{ inputs.login_username }}
+          -e PASSWORD=${{ inputs.login_password }}
+          -e ACTION_TAGS=${{ steps.convert.outputs.tags }}
+          -e ACTION_LABELS=${{ steps.convert.outputs.labels }}
+          -e ACTION_BUILD_ARGS=${{ steps.convert.outputs.build_args }}
+          -e ACTION_EXTRA_ARGS=${{ steps.convert.outputs.extra_args }}
+          -e DOCKERFILE=${{ inputs.dockerfile }}
+          -e REVISION=${{ github.sha }}
+          -e SOURCE=${{ github.server_url }}/${{ github.repository }}
+          -e PUSH=${{ inputs.push }}
+        run: /bin/bash /scripts/run.sh
