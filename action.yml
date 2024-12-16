@@ -61,7 +61,7 @@ runs:
         echo extra_args=$(echo "${{ inputs.extra_args }}" | xargs echo -n | tr -s ' \n' '+') >> $GITHUB_OUTPUT    
 
     - name: Run container steps
-      uses: frozen-tapestry/docker-run-action@v5
+      uses: frozen-tapestry/docker-run-action@develop
       with:
         image: quay.io/podman/stable:latest
         mount_ws: true
