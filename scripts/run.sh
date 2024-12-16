@@ -4,7 +4,7 @@ IFS=$'\n\t '
 
 ### LOGIN
 if [[ -n "$REGISTRY" && -n "$USERNAME" && -n "$PASSWORD" ]]; then
-  podman login --storage-driver=overlay $REGISTRY -u $USERNAME -p $PASSWORD
+  buildah login --storage-driver=overlay2 $REGISTRY -u $USERNAME -p $PASSWORD
 fi
 
 generate_args() {
@@ -36,8 +36,9 @@ if [[ -n "$DOCKERFILE" ]]; then
   EXTRA_ARGS=$(generate_args "$ACTION_EXTRA_ARGS" "")
   echo "Extra args: $EXTRA_ARGS"
 
-  podman build --platform="linux/amd64" \
-    --storage-driver=overlay \
+  buildah bud --platform="linux/amd64" \
+    --storage-driver=overlay2 \
+    --layers \
     --pull=true \
     --label image.created="$CREATED" \
     --label image.revision="$REVISION" \
@@ -54,5 +55,5 @@ if [[ -n "$PUSH" && "$PUSH" == "true" ]]; then
   TAGS=$(generate_args "$ACTION_TAGS" "")
   echo "Tags: $TAGS"
 
-  podman push --storage-driver=overlay $TAGS
+  buildah push --storage-driver=overlay2 $TAGS
 fi
