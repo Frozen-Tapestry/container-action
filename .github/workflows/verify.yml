@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - prime
+      - develop
+    pull_request:
+      branches:
+        - develop
 
 permissions:
   contents: read
