@@ -68,10 +68,10 @@ runs:
           -e=REGISTRY=${{ inputs.login_registry }}
           -e=USERNAME=${{ inputs.login_username }}
           -e=PASSWORD=${{ inputs.login_password }}
-          -e=ACTION_TAGS=${{ steps.convert.outputs.tags }}
-          -e=ACTION_LABELS=${{ steps.convert.outputs.labels }}
-          -e=ACTION_BUILD_ARGS=${{ steps.convert.outputs.build_args }}
-          -e=ACTION_EXTRA_ARGS=${{ steps.convert.outputs.extra_args }}
+          -e=ACTION_TAGS=${{ inputs.tags }}
+          -e=ACTION_LABELS=${{ inputs.labels }}
+          -e=ACTION_BUILD_ARGS=${{ inputs.build_args }}
+          -e=ACTION_EXTRA_ARGS=${{ inputs.extra_args }}
           -e=DOCKERFILE=${{ inputs.dockerfile }}
           -e=REVISION=${{ github.sha }}
           -e=SOURCE=${{ github.server_url }}/${{ github.repository }}
