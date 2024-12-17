@@ -34,14 +34,12 @@ jobs:
           login_registry: ghcr.io
           login_username: ${{ github.actor }}
           login_password: ${{ secrets.GITHUB_TOKEN }}
-          tags: |
-            ghcr.io/frozen-tapestry/podman-action-verify:latest
+          tags: ghcr.io/frozen-tapestry/podman-action-verify:latest
           dockerfile: Dockerfile
-          build_args: |
-            MY_ENV_VAR=Test
-            MY_ENV_VAR2=Test2
-          security:
-            --security-opt seccomp=unconfined --security-opt apparmor=unconfined
+          build_args: MY_ENV_VAR=Test MY_ENV_VAR2=Test2
+          security: |
+            --security-opt=seccomp=unconfined
+            --security-opt=apparmor=unconfined
           push: true
       - name: Run Docker container and verify output
         id: verify-output

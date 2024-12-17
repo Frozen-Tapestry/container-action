@@ -1,10 +1,16 @@
 #!/bin/bash
 set -euo pipefail
-IFS=$'\n\t '
+IFS=$'\n\t'
+
+REGISTRY=${REGISTRY:-}
+USERNAME=${USERNAME:-}
+PASSWORD=${PASSWORD:-}
+DOCKERFILE=${DOCKERFILE:-}
+PUSH=${PUSH:-}
 
 ### LOGIN
 if [[ -n "$REGISTRY" && -n "$USERNAME" && -n "$PASSWORD" ]]; then
-  buildah login --storage-driver=overlay2 $REGISTRY -u $USERNAME -p $PASSWORD
+  buildah login --storage-driver=overlay2 "$REGISTRY" -u "$USERNAME" -p "$PASSWORD"
 fi
 
 generate_args() {
@@ -12,8 +18,8 @@ generate_args() {
   local prefix="$2"
   local output=""
 
-  if [ -n "$input_args" ]; then
-    output="$(echo "$input_args" | tr -s '+' ' ' | sed "s/[^ ]* */$prefix &/g")"
+  if [[ -n "$input_args" ]]; then
+    output="$(echo "$input_args" | tr -s ' ' '\n' | sed "s/[^ ]* */$prefix&/g")"
   fi
 
   echo "$output"
@@ -27,11 +33,11 @@ if [[ -n "$DOCKERFILE" ]]; then
 
   echo "Main labels: $CREATED $REVISION $SOURCE"
 
-  TAGS=$(generate_args "$ACTION_TAGS" "-t")
+  TAGS=$(generate_args "$ACTION_TAGS" "-t=")
   echo "Tags: $TAGS"
-  LABELS=$(generate_args "$ACTION_LABELS" "--label")
+  LABELS=$(generate_args "$ACTION_LABELS" "--label=")
   echo "Labels: $LABELS"
-  BUILD_ARGS=$(generate_args "$ACTION_BUILD_ARGS" "--build-arg")
+  BUILD_ARGS=$(generate_args "$ACTION_BUILD_ARGS" "--build-arg=")
   echo "Build args: $BUILD_ARGS"
   EXTRA_ARGS=$(generate_args "$ACTION_EXTRA_ARGS" "")
   echo "Extra args: $EXTRA_ARGS"
