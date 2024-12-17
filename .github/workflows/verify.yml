@@ -1,13 +1,12 @@
-name: verify
+name: Container Action Tests
 
 on:
   push:
     branches:
       - prime
       - develop
-    pull_request:
-      branches:
-        - develop
+  pull_request_review:
+    types: [submitted]
 
 permissions:
   contents: read
