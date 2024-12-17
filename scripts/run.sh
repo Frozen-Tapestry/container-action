@@ -10,7 +10,7 @@ PUSH=${PUSH:-}
 
 ### LOGIN
 if [[ -n "$REGISTRY" && -n "$USERNAME" && -n "$PASSWORD" ]]; then
-  buildah login --storage-driver=overlay2 "$REGISTRY" -u "$USERNAME" -p "$PASSWORD"
+  podman login --storage-driver=overlay "$REGISTRY" -u "$USERNAME" -p "$PASSWORD"
 fi
 
 generate_args() {
@@ -42,9 +42,8 @@ if [[ -n "$DOCKERFILE" ]]; then
   EXTRA_ARGS=$(generate_args "$ACTION_EXTRA_ARGS" "")
   echo "Extra args: $EXTRA_ARGS"
 
-  buildah bud --platform="linux/amd64" \
-    --storage-driver=overlay2 \
-    --layers \
+  podman build --platform="linux/amd64" \
+    --storage-driver=overlay \
     --pull=true \
     --label image.created="$CREATED" \
     --label image.revision="$REVISION" \
@@ -61,5 +60,5 @@ if [[ -n "$PUSH" && "$PUSH" == "true" ]]; then
   TAGS=$(generate_args "$ACTION_TAGS" "")
   echo "Tags: $TAGS"
 
-  buildah push --storage-driver=overlay2 $TAGS
+  podman push --storage-driver=overlay $TAGS
 fi

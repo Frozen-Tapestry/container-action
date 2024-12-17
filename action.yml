@@ -57,7 +57,7 @@ runs:
     - name: Run container steps
       uses: frozen-tapestry/docker-run-action@v5p
       with:
-        image: quay.io/buildah/stable:latest
+        image: quay.io/podman/stable:latest
         mount_ws: true
         options: |
           ${{ inputs.security }}
