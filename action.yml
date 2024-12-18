@@ -49,7 +49,7 @@ runs:
   using: composite
   steps:
     - name: Run container steps
-      uses: frozen-tapestry/docker-run-action@0c2c7831e29d4389f7521909b92e8097d1eecc88
+      uses: frozen-tapestry/docker-run-action@v6
       with:
         image: quay.io/podman/stable:latest
         mount_ws: true
