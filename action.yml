@@ -40,12 +40,6 @@ inputs:
     description: Whether to push the image after building.
     default: 'false'
     required: false
-  shared_path:
-    description: |
-      Path to container shared folder for different cache files on the host filesystem.
-      Useful for self-hosted runners.
-    default: '/tmp/shared'
-    required: false
   security:
     description: Security flags that are used for an intermediate container. New line separated.
     default: '--network=host'
@@ -55,16 +49,16 @@ runs:
   using: composite
   steps:
     - name: Run container steps
-      uses: frozen-tapestry/docker-run-action@v5p
+      uses: frozen-tapestry/docker-run-action@0c2c7831e29d4389f7521909b92e8097d1eecc88
       with:
         image: quay.io/podman/stable:latest
         mount_ws: true
         options: |
           ${{ inputs.security }}
-          -v=${{ inputs.shared_path }}/auth:/etc/containers/auth
-          -v=${{ inputs.shared_path }}/storage:/var/lib/containers/storage
-          -v=${{ github.action_path }}/scripts:/scripts
-          -e=REGISTRY_AUTH_FILE=/etc/containers/auth/auth.json
+          -v=${{ env.CACHE_SHARED_PATH }}/podman-auth:/home/podman/auth:rw
+          -v=${{ env.CACHE_SHARED_PATH }}/podman-storage:/home/podman/.local/share/containers/storage:rw
+          -v=${{ github.action_path }}/scripts:/scripts:ro
+          -e=REGISTRY_AUTH_FILE=/home/podman/auth/auth.json
           -e=REGISTRY=${{ inputs.login_registry }}
           -e=USERNAME=${{ inputs.login_username }}
           -e=PASSWORD=${{ inputs.login_password }}

@@ -8,9 +8,17 @@ PASSWORD=${PASSWORD:-}
 DOCKERFILE=${DOCKERFILE:-}
 PUSH=${PUSH:-}
 
+PODMAN_USER="podman"
+
+chown $PODMAN_USER:$PODMAN_USER /home/$PODMAN_USER/auth
+chown $PODMAN_USER:$PODMAN_USER /home/$PODMAN_USER/.local/share/containers/storage
+
 ### LOGIN
 if [[ -n "$REGISTRY" && -n "$USERNAME" && -n "$PASSWORD" ]]; then
-  podman login --storage-driver=overlay "$REGISTRY" -u "$USERNAME" -p "$PASSWORD"
+  sudo -u $PODMAN_USER podman login \
+    --storage-driver=overlay \
+    --authfile="$REGISTRY_AUTH_FILE" \
+    "$REGISTRY" -u "$USERNAME" -p "$PASSWORD"
 fi
 
 generate_args() {
@@ -42,8 +50,9 @@ if [[ -n "$DOCKERFILE" ]]; then
   EXTRA_ARGS=$(generate_args "$ACTION_EXTRA_ARGS" "")
   echo "Extra args: $EXTRA_ARGS"
 
-  podman build --platform="linux/amd64" \
+  sudo -u $PODMAN_USER podman build --platform="linux/amd64" \
     --storage-driver=overlay \
+    --authfile="$REGISTRY_AUTH_FILE" \
     --pull=true \
     --label image.created="$CREATED" \
     --label image.revision="$REVISION" \
@@ -60,5 +69,7 @@ if [[ -n "$PUSH" && "$PUSH" == "true" ]]; then
   TAGS=$(generate_args "$ACTION_TAGS" "")
   echo "Tags: $TAGS"
 
-  podman push --storage-driver=overlay $TAGS
+  sudo -u $PODMAN_USER podman push \
+    --storage-driver=overlay \
+    --authfile="$REGISTRY_AUTH_FILE" $TAGS
 fi
