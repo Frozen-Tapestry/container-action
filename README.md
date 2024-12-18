@@ -1,24 +1,23 @@
-# Podman (Login,Build,Push) GitHub Action
+# Podman (Login, Build, Push) GitHub Action
 
-This repository provides a GitHub Action to build and push container images using [Podman](https://podman.io/). It supports Podman login, building images from Dockerfiles, and pushing images to container registries.
+This repository provides a GitHub Action to build and push container images using [Podman](https://podman.io/). The action supports Podman login, building images from Dockerfiles, and pushing images to container registries. It is designed to work seamlessly within GitHub workflows to automate CI/CD pipelines.
 
 ## Features
 
-- Build container images with Podman.
-- Push images to a container registry (e.g., `ghcr.io`, `quay.io`).
-- Flexible support for build arguments, labels, tags, and security options.
-- Designed to run in GitHub workflows for CI/CD automation.
-- Supports Gitea Actions with a shared storage between runs.
+- **Build and Push:** Build container images and optionally push them to a container registry.
+- **Flexible Configuration:** Support for build arguments, labels, tags, and security options.
+- **CI/CD Ready:** Designed for GitHub Actions workflows.
+- **Shared Storage Support:** Compatible with shared storage on self-hosted runners for caching.
 
 ## Directory Structure
 
 ```plaintext
-podman-action
+container-action
 ├── LICENSE                 # License information (MIT)
 ├── README.md               # This documentation
 ├── .github
 │    └── workflows
-│        └── verify.yml     # Example GitHub workflow for verification
+│        └── verify.yml     # Example workflow for testing
 ├── scripts
 │   └── run.sh              # Core script to handle Podman operations
 └── action.yml              # GitHub Action definition
@@ -28,7 +27,7 @@ podman-action
 
 ### Example Workflow
 
-Add the following workflow file to `.github/workflows/build.yml`:
+To use this action in a workflow, create a file `.github/workflows/build.yml` with the following content:
 
 ```yaml
 name: Build and Push Container Image
@@ -59,19 +58,18 @@ jobs:
 
 ### Inputs
 
-| Input            | Description                                                                                      | Required | Default          |
-|------------------|--------------------------------------------------------------------------------------------------|----------|------------------|
-| `login_registry` | The container registry to push to (e.g., `ghcr.io`).                                             | No       |                  |
-| `login_username` | Registry username.                                                                               | No       |                  |
-| `login_password` | Registry password (use GitHub secrets).                                                          | No       |                  |
-| `tags`           | Tags for the image (space-separated or newline-separated).                                       | No       |                  |
-| `labels`         | Additional metadata for the image (space-separated or newline-separated).                        | No       |                  |
-| `build_args`     | Build arguments (space-separated or newline-separated).                                          | No       |                  |
-| `extra_args`     | Extra arguments for the `podman build` command (newline-separated).                              | No       |                  |
-| `dockerfile`     | Path to the Dockerfile. If set, the build step is performed.                                     | No       |                  |
-| `push`           | Whether to push the image after building.                                                        | No       | `false`          |
-| `shared_path`    | Path to a shared folder for cache files on the host filesystem (useful for self-hosted runners). | No       | `/tmp/shared`    |
-| `security`       | Security options for the intermediate container (space-separated).                               | No       | `--network=host` |
+| Input            | Description                                                                                             | Required | Default          |
+|------------------|---------------------------------------------------------------------------------------------------------|----------|------------------|
+| `login_registry` | Container registry to push to (e.g., `quay.io`). If not set, the image is only built locally.           | No       |                  |
+| `login_username` | Registry username.                                                                                      | No       |                  |
+| `login_password` | Registry password (GitHub secret recommended).                                                          | No       |                  |
+| `tags`           | Tags for the image. Space-separated. e.g. `quay.io/podman/stable:latest quay.io/podman/stable:nightly`. | No       |                  |
+| `labels`         | List of additional metadata for an image. Space-separated.                                              | No       |                  |
+| `build_args`     | Optional build arguments. Space-separated. e.g. `MY_ENV_VAR=Test MY_ENV_VAR2=Test2`.                    | No       |                  |
+| `extra_args`     | Extra arguments to be passed to Podman. Space-separated. e.g. `-e=MY_ENV=Test -e=MY_ENV=Test2`.         | No       |                  |
+| `dockerfile`     | Path to the Dockerfile. If set, the build step is performed.                                            | No       |                  |
+| `push`           | Whether to push the image after building.                                                               | No       | `false`          |
+| `security`       | Security flags used for an intermediate container. Newline-separated.                                   | No       | `--network=host` |
 
 ## Development
 
@@ -82,7 +80,7 @@ The `verify.yml` workflow tests the action by:
 2. Building and pushing the container image.
 3. Running the container to validate its output.
 
-You can use this workflow as a template for testing your own usage.
+You can use this workflow as a template for testing your own usage. It is located at `.github/workflows/verify.yml`.
 
 ### Core Script
 
