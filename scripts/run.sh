@@ -26,7 +26,7 @@ if [[ -n "$REGISTRY" && -n "$USERNAME" && -n "$PASSWORD" ]]; then
     --storage-driver=overlay
     --authfile="$REGISTRY_AUTH_FILE"
     "$REGISTRY"
-    -username="$USERNAME"
+    --username="$USERNAME"
     --password="$PASSWORD"
   )
   run_cmd "${build_cmd[@]}"
