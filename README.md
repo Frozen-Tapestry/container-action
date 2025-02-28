@@ -46,13 +46,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Use Podman Build and Push Action
-        uses: frozen-tapestry/podman-build-push-action@v1
+        uses: Frozen-Tapestry/container-action@v1
         with:
           login_registry: ghcr.io
           login_username: ${{ secrets.REGISTRY_USERNAME }}
           login_password: ${{ secrets.REGISTRY_PASSWORD }}
           tags: ghcr.io/your-namespace/your-image:latest
           dockerfile: path/to/Dockerfile
+          # Use those security flags if using GitHub Action. Keep the defaults, if using Gitea.
+          security: |
+            --security-opt=seccomp=unconfined
+            --security-opt=apparmor=unconfined
           push: true
 ```
 
