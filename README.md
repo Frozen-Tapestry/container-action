@@ -53,6 +53,10 @@ jobs:
           login_password: ${{ secrets.REGISTRY_PASSWORD }}
           tags: ghcr.io/your-namespace/your-image:latest
           dockerfile: path/to/Dockerfile
+          # Use those security flags if using GitHub Action. Keep the defaults, if using Gitea.
+          security: |
+            --security-opt=seccomp=unconfined
+            --security-opt=apparmor=unconfined
           push: true
 ```
 
