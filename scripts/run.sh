@@ -13,12 +13,23 @@ PODMAN_USER="podman"
 chown $PODMAN_USER:$PODMAN_USER /home/$PODMAN_USER/auth
 chown $PODMAN_USER:$PODMAN_USER /home/$PODMAN_USER/.local/share/containers/storage
 
+run_cmd() {
+    local build_cmd=("$@")
+    cmd=$(printf "%q\t" "${build_cmd[@]}")
+    echo "Running: $cmd"
+    su "$PODMAN_USER" -c "$cmd"
+}
+
 ### LOGIN
 if [[ -n "$REGISTRY" && -n "$USERNAME" && -n "$PASSWORD" ]]; then
-  sudo -u $PODMAN_USER podman login \
-    --storage-driver=overlay \
-    --authfile="$REGISTRY_AUTH_FILE" \
-    "$REGISTRY" -u "$USERNAME" -p "$PASSWORD"
+  build_cmd=(podman login
+    --storage-driver=overlay
+    --authfile="$REGISTRY_AUTH_FILE"
+    "$REGISTRY"
+    -username="$USERNAME"
+    --password="$PASSWORD"
+  )
+  run_cmd "${build_cmd[@]}"
 fi
 
 generate_args() {
@@ -50,26 +61,31 @@ if [[ -n "$DOCKERFILE" ]]; then
   EXTRA_ARGS=$(generate_args "$ACTION_EXTRA_ARGS" "")
   echo "Extra args: $EXTRA_ARGS"
 
-  sudo -u $PODMAN_USER podman build --platform="linux/amd64" \
-    --storage-driver=overlay \
-    --authfile="$REGISTRY_AUTH_FILE" \
-    --pull=true \
-    --label image.created="$CREATED" \
-    --label image.revision="$REVISION" \
-    --label image.source="$SOURCE" \
-    $TAGS \
-    $LABELS \
-    $BUILD_ARGS \
-    $EXTRA_ARGS \
-    -f "$DOCKERFILE" \
+  build_cmd=(podman build
+    --platform="linux/amd64"
+    --storage-driver=overlay
+    --authfile="$REGISTRY_AUTH_FILE"
+    --pull=true
+    --label=image.created="$CREATED"
+    --label=image.revision="$REVISION"
+    --label=image.source="$SOURCE"
+    $TAGS
+    $LABELS
+    $BUILD_ARGS
+    $EXTRA_ARGS
+    --file="$DOCKERFILE"
     .
+  )
+  run_cmd "${build_cmd[@]}"
 fi
 
 if [[ -n "$PUSH" && "$PUSH" == "true" ]]; then
   TAGS=$(generate_args "$ACTION_TAGS" "")
   echo "Tags: $TAGS"
 
-  sudo -u $PODMAN_USER podman push \
-    --storage-driver=overlay \
+  build_cmd=(podman push
+    --storage-driver=overlay
     --authfile="$REGISTRY_AUTH_FILE" $TAGS
+  )
+  run_cmd "${build_cmd[@]}"
 fi
