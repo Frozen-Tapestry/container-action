@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Use Podman Build and Push Action
-        uses: frozen-tapestry/podman-build-push-action@v1
+        uses: Frozen-Tapestry/container-action@v1
         with:
           login_registry: ghcr.io
           login_username: ${{ secrets.REGISTRY_USERNAME }}
