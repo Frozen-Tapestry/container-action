@@ -32,16 +32,29 @@ if [[ -n "$REGISTRY" && -n "$USERNAME" && -n "$PASSWORD" ]]; then
   run_cmd "${build_cmd[@]}"
 fi
 
+# Function that splits on unescaped spaces (but not on escaped ones)
+# and outputs each processed token on a new line.
 generate_args() {
   local input_args="$1"
   local prefix="$2"
-  local output=""
+  local output=()
+  local placeholder="__ESCAPED_SPACE__"
 
   if [[ -n "$input_args" ]]; then
-    output="$(echo "$input_args" | tr -s ' ' '\n' | sed "s/[^ ]* */$prefix&/g")"
+    # Replace escaped spaces (\ ) with a unique placeholder.
+    local temp="${input_args//\\ /$placeholder}"
+    # Split on spaces (escaped ones are now hidden).
+    IFS=' ' read -r -a parts <<< "$temp"
+    for part in "${parts[@]}"; do
+      # Skip any empty parts.
+      [[ -z "$part" ]] && continue
+      # Restore escaped spaces.
+      part="${part//$placeholder/ }"
+      output+=("$prefix$part")
+    done
   fi
 
-  echo "$output"
+  printf "%s\n" "${output[@]}"
 }
 
 ### BUILD
@@ -53,13 +66,13 @@ if [[ -n "$DOCKERFILE" ]]; then
   echo "Main labels: $CREATED $REVISION $SOURCE"
 
   TAGS=$(generate_args "$ACTION_TAGS" "-t=")
-  echo "Tags: $TAGS"
+  echo "Tags: ${TAGS[@]}"
   LABELS=$(generate_args "$ACTION_LABELS" "--label=")
-  echo "Labels: $LABELS"
+  echo "Labels: ${LABELS[@]}"
   BUILD_ARGS=$(generate_args "$ACTION_BUILD_ARGS" "--build-arg=")
-  echo "Build args: $BUILD_ARGS"
+  echo "Build args: ${BUILD_ARGS[@]}"
   EXTRA_ARGS=$(generate_args "$ACTION_EXTRA_ARGS" "")
-  echo "Extra args: $EXTRA_ARGS"
+  echo "Extra args: ${EXTRA_ARGS[@]}"
 
   build_cmd=(podman build
     --platform="linux/amd64"
@@ -81,11 +94,12 @@ fi
 
 if [[ -n "$PUSH" && "$PUSH" == "true" ]]; then
   TAGS=$(generate_args "$ACTION_TAGS" "")
-  echo "Tags: $TAGS"
+  echo "Tags: ${TAGS[@]}"
 
   build_cmd=(podman push
     --storage-driver=overlay
-    --authfile="$REGISTRY_AUTH_FILE" $TAGS
+    --authfile="$REGISTRY_AUTH_FILE"
+    $TAGS
   )
   run_cmd "${build_cmd[@]}"
 fi
