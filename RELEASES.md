@@ -8,3 +8,7 @@
 
 - Permission error fix
 - Readme updates
+
+### v1.2.0
+
+- Added support for escaped spaces

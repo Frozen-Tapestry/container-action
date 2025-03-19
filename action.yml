@@ -25,13 +25,13 @@ inputs:
     required: false
   build_args:
     description: |
-      Optional build arguments. Space-separated. e.g.
+      Optional build arguments. Space-separated, escape space if used within single arg. e.g.
       MY_ENV_VAR=Test MY_ENV_VAR2=Test2
     required: false
   extra_args:
     description: |
-      Extra args to be passed to podman. Space-separated. e.g.
-      -e=MY_ENV=Test -e=MY_ENV=Test2
+      Extra args to be passed to podman. Space-separated, escape space if used within single arg. e.g.
+      -e=MY_ENV=Test -e=MY_ENV=Test2 -e MY_ENV=Var\ with\ spaces
     required: false
   dockerfile:
     description: Path to the Dockerfile. If set, build step is performed.
