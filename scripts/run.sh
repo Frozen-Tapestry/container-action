@@ -96,10 +96,13 @@ if [[ -n "$PUSH" && "$PUSH" == "true" ]]; then
   TAGS=$(generate_args "$ACTION_TAGS" "")
   echo "Tags: ${TAGS[@]}"
 
-  build_cmd=(podman push
-    --storage-driver=overlay
-    --authfile="$REGISTRY_AUTH_FILE"
-    $TAGS
-  )
-  run_cmd "${build_cmd[@]}"
+  for tag in $TAGS
+  do
+    build_cmd=(podman push
+      --storage-driver=overlay
+      --authfile="$REGISTRY_AUTH_FILE"
+      $tag
+    )
+    run_cmd "${build_cmd[@]}"
+  done
 fi
