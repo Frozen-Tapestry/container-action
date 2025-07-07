@@ -37,7 +37,7 @@ jobs:
           login_registry: ghcr.io
           login_username: ${{ github.actor }}
           login_password: ${{ secrets.GITHUB_TOKEN }}
-          tags: ghcr.io/frozen-tapestry/podman-action-verify:latest
+          tags: ghcr.io/frozen-tapestry/podman-action-verify:latest ghcr.io/frozen-tapestry/podman-action-verify:test
           dockerfile: Dockerfile
           build_args: MY_ENV_VAR=Test MY_ENV_VAR2=Test2
           extra_args: --build-arg EXTRA_ENV_VAR="Extra\ env\ 1" --build-arg=EXTRA_ENV_VAR2=Extra\ env\ 2
@@ -49,9 +49,11 @@ jobs:
         id: verify-output
         run: |
           OUTPUT=$(docker run --rm ghcr.io/frozen-tapestry/podman-action-verify:latest)
+          OUTPUT2=$(docker run --rm ghcr.io/frozen-tapestry/podman-action-verify:test)
           echo "Container Output: $OUTPUT"
+          echo "Container Output: $OUTPUT2"
           
-          if [ "$OUTPUT" != "Result: Test Test2 ~\"Extra env 1\"~ ~Extra env 2~" ]; then
+          if [ "$OUTPUT" != "Result: Test Test2 ~\"Extra env 1\"~ ~Extra env 2~" ] || [ "$OUTPUT" != "$OUTPUT2" ]; then
             echo "Output does not match expected string"
             exit 1
           fi

@@ -12,3 +12,7 @@
 ### v1.2.0
 
 - Added support for escaped spaces
+
+### v1.2.1
+
+- Fix for pushing all the tags of an image
