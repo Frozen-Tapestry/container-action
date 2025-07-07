@@ -51,7 +51,7 @@ jobs:
           OUTPUT=$(docker run --rm ghcr.io/frozen-tapestry/podman-action-verify:latest)
           OUTPUT2=$(docker run --rm ghcr.io/frozen-tapestry/podman-action-verify:test)
           echo "Container Output: $OUTPUT"
-          echo "Container Output: $OUTPUT2"
+          echo "Container Output2: $OUTPUT2"
           
           if [ "$OUTPUT" != "Result: Test Test2 ~\"Extra env 1\"~ ~Extra env 2~" ] || [ "$OUTPUT" != "$OUTPUT2" ]; then
             echo "Output does not match expected string"
