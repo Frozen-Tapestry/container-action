@@ -16,3 +16,8 @@
 ### v1.2.1
 
 - Fix for pushing all the tags of an image
+
+### v1.3.0
+
+- Make mount_ws configurable
+- Annotations support

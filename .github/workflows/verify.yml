@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Create test Dockerfile
         run: |
           echo 'FROM alpine:latest
@@ -41,6 +41,8 @@ jobs:
           dockerfile: Dockerfile
           build_args: MY_ENV_VAR=Test MY_ENV_VAR2=Test2
           extra_args: --build-arg EXTRA_ENV_VAR="Extra\ env\ 1" --build-arg=EXTRA_ENV_VAR2=Extra\ env\ 2
+          labels: com.example.test-label=test\ label
+          annotations: com.example.test-annotation=annotation
           security: |
             --security-opt=seccomp=unconfined
             --security-opt=apparmor=unconfined
@@ -48,12 +50,18 @@ jobs:
       - name: Run Docker container and verify output
         id: verify-output
         run: |
-          OUTPUT=$(docker run --rm ghcr.io/frozen-tapestry/podman-action-verify:latest)
+          LATEST="ghcr.io/frozen-tapestry/podman-action-verify:latest"
+          OUTPUT=$(docker run --rm "$LATEST")
           OUTPUT2=$(docker run --rm ghcr.io/frozen-tapestry/podman-action-verify:test)
+          OUTPUT_LABEL=$(docker inspect "$LATEST" | jq -r ".[0].Config.Labels[\"com.example.test-label\"]")
+          OUTPUT_ANNOTATION=$(docker inspect "$LATEST" | jq -r ".[0].Config.Labels[\"com.example.test-annotation\"]")
           echo "Container Output: $OUTPUT"
           echo "Container Output2: $OUTPUT2"
           
-          if [ "$OUTPUT" != "Result: Test Test2 ~\"Extra env 1\"~ ~Extra env 2~" ] || [ "$OUTPUT" != "$OUTPUT2" ]; then
+          if [ "$OUTPUT" != "Result: Test Test2 ~\"Extra env 1\"~ ~Extra env 2~" ] ||
+             [ "$OUTPUT" != "$OUTPUT2" ] ||
+             [ "$OUTPUT_LABEL" != "test label" ] ||
+             [ "$OUTPUT_ANNOTATION" != "annotation" ]; then
             echo "Output does not match expected string"
             exit 1
           fi
