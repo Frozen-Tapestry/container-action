@@ -57,6 +57,8 @@ jobs:
           OUTPUT_ANNOTATION=$(docker inspect "$LATEST" | jq -r ".[0].Config.Labels[\"com.example.test-annotation\"]")
           echo "Container Output: $OUTPUT"
           echo "Container Output2: $OUTPUT2"
+          echo "Container label: $OUTPUT_LABEL"
+          echo "Container annotation: $OUTPUT_ANNOTATION"
           
           if [ "$OUTPUT" != "Result: Test Test2 ~\"Extra env 1\"~ ~Extra env 2~" ] ||
              [ "$OUTPUT" != "$OUTPUT2" ] ||
