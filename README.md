@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Podman Build and Push Action
         uses: Frozen-Tapestry/container-action@v1
@@ -62,18 +62,20 @@ jobs:
 
 ### Inputs
 
-| Input            | Description                                                                                             | Required | Default          |
-|------------------|---------------------------------------------------------------------------------------------------------|----------|------------------|
-| `login_registry` | Container registry to push to (e.g., `quay.io`). If not set, the image is only built locally.           | No       |                  |
-| `login_username` | Registry username.                                                                                      | No       |                  |
-| `login_password` | Registry password (GitHub secret recommended).                                                          | No       |                  |
-| `tags`           | Tags for the image. Space-separated. e.g. `quay.io/podman/stable:latest quay.io/podman/stable:nightly`. | No       |                  |
-| `labels`         | List of additional metadata for an image. Space-separated.                                              | No       |                  |
-| `build_args`     | Optional build arguments. Space-separated. e.g. `MY_ENV_VAR=Test MY_ENV_VAR2=Test2`.                    | No       |                  |
-| `extra_args`     | Extra arguments to be passed to Podman. Space-separated. e.g. `-e=MY_ENV=Test -e=MY_ENV=Test2`.         | No       |                  |
-| `dockerfile`     | Path to the Dockerfile. If set, the build step is performed.                                            | No       |                  |
-| `push`           | Whether to push the image after building.                                                               | No       | `false`          |
-| `security`       | Security flags used for an intermediate container. Newline-separated.                                   | No       | `--network=host` |
+| Input            | Description                                                                                                | Required | Default          |
+|------------------|------------------------------------------------------------------------------------------------------------|----------|------------------|
+| `login_registry` | Container registry to push to (e.g., `quay.io`). If not set, the image is only built locally.              | No       |                  |
+| `login_username` | Registry username.                                                                                         | No       |                  |
+| `login_password` | Registry password (GitHub secret recommended).                                                             | No       |                  |
+| `tags`           | Tags for the image. Space-separated. e.g. `quay.io/podman/stable:latest quay.io/podman/stable:nightly`.    | No       |                  |
+| `labels`         | List of image labels (key=value) stored in the image config. Space-separated.                              | No       |                  |
+| `annotations`    | List of OCI annotations (key=value) stored in the image manifest. Space-separated.                         | No       |                  |
+| `build_args`     | Optional build arguments. Space-separated. e.g. `MY_ENV_VAR=Test MY_ENV_VAR2=Test2`.                       | No       |                  |
+| `extra_args`     | Extra arguments to be passed to Podman. Space-separated. e.g. `-e=MY_ENV=Test -e=MY_ENV=Test2`.            | No       |                  |
+| `dockerfile`     | Path to the Dockerfile. If set, the build step is performed.                                               | No       |                  |
+| `push`           | Whether to push the image after building.                                                                  | No       | `false`          |
+| `security`       | Security flags used for an intermediate container. Newline-separated.                                      | No       | `--network=host` |
+| `mount_ws`       | Mount workspace. Can be true/false or path to directory. If true, mounts workspace as a working directory. | No       | `true`           |
 
 ## Development
 

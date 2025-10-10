@@ -21,7 +21,11 @@ inputs:
     required: false
   labels:
     description: |
-      List of additional metadata for an image. Space-separated.
+      List of image labels (key=value) stored in the image config. Space-separated.
+    required: false
+  annotations:
+    description: |
+      List of OCI annotations (key=value) stored in the image manifest. Space-separated.
     required: false
   build_args:
     description: |
@@ -44,6 +48,10 @@ inputs:
     description: Security flags that are used for an intermediate container. New line separated.
     default: '--network=host'
     required: false
+  mount_ws:
+    description: Mount workspace. Can be true/false or path to directory. If true, mounts workspace as a working directory.
+    required: false
+    default: 'true'
 
 runs:
   using: composite
@@ -52,7 +60,7 @@ runs:
       uses: frozen-tapestry/docker-run-action@v6
       with:
         image: quay.io/podman/stable:latest
-        mount_ws: true
+        mount_ws: ${{ inputs.mount_ws }}
         options: |
           ${{ inputs.security }}
           -v=${{ env.CACHE_SHARED_PATH }}/podman-auth:/home/podman/auth:rw
@@ -64,6 +72,7 @@ runs:
           -e=PASSWORD=${{ inputs.login_password }}
           -e=ACTION_TAGS=${{ inputs.tags }}
           -e=ACTION_LABELS=${{ inputs.labels }}
+          -e=ACTION_ANNOTATIONS=${{ inputs.annotations }}
           -e=ACTION_BUILD_ARGS=${{ inputs.build_args }}
           -e=ACTION_EXTRA_ARGS=${{ inputs.extra_args }}
           -e=DOCKERFILE=${{ inputs.dockerfile }}

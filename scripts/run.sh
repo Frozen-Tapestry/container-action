@@ -69,6 +69,8 @@ if [[ -n "$DOCKERFILE" ]]; then
   echo "Tags: ${TAGS[@]}"
   LABELS=$(generate_args "$ACTION_LABELS" "--label=")
   echo "Labels: ${LABELS[@]}"
+  ANNOTATIONS=$(generate_args "$ACTION_ANNOTATIONS" "--annotation=")
+  echo "Annotations: ${ANNOTATIONS[@]}"
   BUILD_ARGS=$(generate_args "$ACTION_BUILD_ARGS" "--build-arg=")
   echo "Build args: ${BUILD_ARGS[@]}"
   EXTRA_ARGS=$(generate_args "$ACTION_EXTRA_ARGS" "")
@@ -84,6 +86,7 @@ if [[ -n "$DOCKERFILE" ]]; then
     --label=image.source="$SOURCE"
     $TAGS
     $LABELS
+    $ANNOTATIONS
     $BUILD_ARGS
     $EXTRA_ARGS
     --file="$DOCKERFILE"
