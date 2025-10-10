@@ -54,7 +54,7 @@ jobs:
           OUTPUT=$(docker run --rm "$LATEST")
           OUTPUT2=$(docker run --rm ghcr.io/frozen-tapestry/podman-action-verify:test)
           OUTPUT_LABEL=$(docker inspect "$LATEST" | jq -r ".[0].Config.Labels[\"com.example.test-label\"]")
-          OUTPUT_ANNOTATION=$(docker inspect "$LATEST" | jq -r ".[0].Config.Annotations[\"com.example.test-annotation\"]")
+          OUTPUT_ANNOTATION=$(docker manifest inspect "$LATEST" | jq -r '.annotations["com.example.test-annotation"] // .manifests[].annotations["com.example.test-annotation"]')
           echo "Container Output: $OUTPUT"
           echo "Container Output2: $OUTPUT2"
           echo "Container label: $OUTPUT_LABEL"
