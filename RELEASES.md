@@ -21,3 +21,7 @@
 
 - Make mount_ws configurable
 - Annotations support
+
+### v1.4.0
+
+- Make docker socket configurable
